@@ -1,3 +1,11 @@
+# Set the terraform remote state backend with azd
+
+```shell
+azd env set RS_STORAGE_ACCOUNT your_storage_account_name
+azd env set RS_CONTAINER_NAME your_terraform_container_name
+azd env set RS_RESOURCE_GROUP your_storage_account_resource_group
+```
+
 # Azure Developer CLI (azd) Terraform Starter
 
 A starter blueprint for getting your application up on Azure using [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview) (azd). Add your application code, write Infrastructure as Code assets in Terraform to get your application up and running quickly.
