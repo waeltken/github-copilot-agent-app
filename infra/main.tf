@@ -91,18 +91,23 @@ resource "azurerm_container_app" "default" {
       image  = "ghcr.io/waeltken/azure-account-show/main:latest"
       cpu    = 2
       memory = "4Gi"
+      readiness_probe {
+        transport = "TCP"
+        port      = 8000
+      }
     }
   }
-  # Allow public ingress traffic
-  # ingress {
-  #   external_enabled = true
-  #   target_port      = 9000
 
-  #   traffic_weight {
-  #     latest_revision = true
-  #     percentage      = 100
-  #   }
-  # }
+  # Allow public ingress traffic
+  ingress {
+    external_enabled = true
+    target_port      = 8000
+
+    traffic_weight {
+      latest_revision = true
+      percentage      = 100
+    }
+  }
 
   registry {
     server   = azurerm_container_registry.acr.login_server
@@ -110,15 +115,11 @@ resource "azurerm_container_app" "default" {
   }
 
   lifecycle {
-    ignore_changes = [ingress.0.custom_domain]
+    ignore_changes = [ingress.0.custom_domain, template.0.container.0.image]
   }
 
   tags = { azd-service-name : "python-api" }
 }
-
-# output "default_domain_name" {
-#   value = azurerm_container_app.default.ingress[0].fqdn
-# }
 
 # output "atlantis_url" {
 #   value = "https://${azurerm_container_app.default.ingress[0].custom_domain[0].name}"
