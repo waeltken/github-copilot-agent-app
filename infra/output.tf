@@ -14,3 +14,7 @@ output "AZURE_LOCATION" {
 output "AZURE_TENANT_ID" {
   value = data.azurerm_client_config.current.tenant_id
 }
+
+output "AZURE_CONTAINER_REGISTRY_ENDPOINT" {
+  value = azurerm_container_registry.acr.login_server
+}
