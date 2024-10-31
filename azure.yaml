@@ -6,16 +6,18 @@
 
 # Name of the application.
 name: azd-starter
-# services:
+resourceGroup: dev-rg
+services:
 #   ## An example for a python API service.
 #   ## The service is named 'python-api'.
 #   ## The language is 'python'.
 #   ## The source code is located in the project (azure.yaml) directory.
 #   ## The service will be hosted on Azure App Service.
-#   python-api:
-#     language: python
-#     project: ./
-#     host: appservice
+  python-api:
+    language: python
+    project: ./src
+    host: containerapp
+
 #   ## An example for a NodeJS API, located in src/api.
 #   nodejs-api:
 #     language: js
