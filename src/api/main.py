@@ -10,19 +10,6 @@ from api.models import RootModel
 app = FastAPI()
 
 
-def transform_payload_for_openai_compatibility(payload: RootModel):
-    return {
-        "messages": [
-            {
-                "role": message.role,
-                "name": message.name,
-                "content": message.content,
-            }
-            for message in payload.messages
-        ]
-    }
-
-
 @app.get("/")
 async def dummy_200():
     return {"ready": "Ok!"}
@@ -35,7 +22,6 @@ async def request(
     github_public_key_signature: Annotated[str, Header()],
     github_public_key_identifier: Annotated[str, Header()],
 ):
-    compatible_payload = transform_payload_for_openai_compatibility(payload)
     openai = OpenAI(base_url="https://api.githubcopilot.com", api_key=x_github_token)
     response = openai.chat.completions.create(
         stream=True,
