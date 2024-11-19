@@ -66,7 +66,7 @@ async def verify_signature_middleware(request: Request, call_next):
     return response
 
 
-@app.post("/", dependencies=[Depends(verify_signature_middleware)])
+@app.post("/")
 async def request(
     payload: RootModel,
     x_github_token: Annotated[str, Header()],
