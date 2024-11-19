@@ -7,8 +7,11 @@ from typing import Annotated
 
 import uvicorn
 from fastapi import FastAPI, Header, Depends, Request, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from openai import OpenAI
+from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 from api.models import RootModel
 
@@ -32,10 +35,18 @@ def get_github_public_key(key_id: str) -> str:
 
 
 def verify_request_by_key_id(raw_body: bytes, signature: str, key_id: str) -> bool:
-    public_key = get_github_public_key(key_id)
-    decoded_signature = base64.b64decode(signature)
-    hmac_obj = hmac.new(public_key.encode(), raw_body, hashlib.sha256)
-    return hmac.compare_digest(hmac_obj.digest(), decoded_signature)
+    public_key_pem = get_github_public_key(key_id)
+    public_key = load_pem_public_key(public_key_pem.encode())
+    signature_bytes = base64.b64decode(signature)
+    try:
+        if isinstance(public_key, ec.EllipticCurvePublicKey):
+            public_key.verify(signature_bytes, raw_body, ec.ECDSA(hashes.SHA256()))
+        else:
+            raise ValueError("Unsupported public key type")
+        return True
+    except Exception as e:
+        print(f"Verification failed: {e}")
+        return False
 
 
 @app.middleware("http")
@@ -44,12 +55,17 @@ async def verify_signature_middleware(request: Request, call_next):
     github_public_key_signature = request.headers.get("Github-Public-Key-Signature")
     github_public_key_identifier = request.headers.get("Github-Public-Key-Identifier")
 
+    if not github_public_key_signature or not github_public_key_identifier:
+        return JSONResponse(
+            status_code=403, content={"detail": "Missing signature or key identifier"}
+        )
+
     if not verify_request_by_key_id(
         raw_body=raw_body,
         signature=github_public_key_signature,
         key_id=github_public_key_identifier,
     ):
-        raise HTTPException(status_code=403, detail="Invalid signature")
+        return JSONResponse(status_code=403, content={"detail": "Invalid signature"})
 
     response = await call_next(request)
     return response
