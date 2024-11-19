@@ -2,6 +2,7 @@ import json
 from base64 import b64decode
 from hashlib import sha256
 from typing import Annotated
+from functools import lru_cache
 
 import requests
 import uvicorn
@@ -21,6 +22,7 @@ async def dummy_200():
     return {"ready": "Ok!"}
 
 
+@lru_cache()
 def get_github_public_key(key_id: str) -> str:
     # Fetch the public key from GitHub's API
     response = requests.get("https://api.github.com/meta/public_keys/copilot_api")
@@ -72,6 +74,7 @@ async def request(
     x_github_token: Annotated[str, Header()],
 ):
     openai = OpenAI(base_url="https://api.githubcopilot.com", api_key=x_github_token)
+
     response = openai.chat.completions.create(
         stream=True,
         model="gpt-4o",
