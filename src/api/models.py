@@ -13,22 +13,22 @@ class Language(BaseModel):
 
 
 class RepositoryData(BaseModel):
-    type: str
-    id: int
-    name: str
-    ownerLogin: str
-    ownerType: str
-    readmePath: str
-    description: str
-    commitOID: str
-    ref: str
-    refInfo: RefInfo
-    visibility: str
-    languages: List[Language]
+    type: Optional[str] = None
+    id: Optional[int] = None
+    name: Optional[str] = None
+    ownerLogin: Optional[str] = None
+    ownerType: Optional[str] = None
+    readmePath: Optional[str] = None
+    description: Optional[str] = None
+    commitOID: Optional[str] = None
+    ref: Optional[str] = None
+    refInfo: Optional[str] = None
+    visibility: Optional[str] = None
+    languages: Optional[List[Language]] = None
 
 
 class CurrentUrlData(BaseModel):
-    type: str
+    type: Optional[str] = None
 
 
 class Metadata(BaseModel):
@@ -39,7 +39,7 @@ class Metadata(BaseModel):
 
 class CopilotReference(BaseModel):
     type: str
-    data: Union[RepositoryData, CurrentUrlData]
+    data: Optional[Union[RepositoryData, CurrentUrlData]] = None
     id: str
     is_implicit: bool
     metadata: Metadata
@@ -68,3 +68,4 @@ class RootModel(BaseModel):
     tools: Optional[Any] = None
     functions: Optional[Any] = None
     model: str
+    call_next: Optional[Any] = None

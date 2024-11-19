@@ -1,19 +1,17 @@
 import json
-import hmac
-import hashlib
-import base64
-import requests
+from base64 import b64decode
+from hashlib import sha256
 from typing import Annotated
 
+import requests
 import uvicorn
+from ecdsa import VerifyingKey, BadSignatureError, NIST256p
+from ecdsa.util import sigdecode_der
 from fastapi import FastAPI, Header, Depends, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
-from openai import OpenAI
-from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 from api.models import RootModel
+from openai import OpenAI
 
 app = FastAPI()
 
@@ -36,15 +34,12 @@ def get_github_public_key(key_id: str) -> str:
 
 def verify_request_by_key_id(raw_body: bytes, signature: str, key_id: str) -> bool:
     public_key_pem = get_github_public_key(key_id)
-    public_key = load_pem_public_key(public_key_pem.encode())
-    signature_bytes = base64.b64decode(signature)
+    raw_sig = b64decode(signature)
+    ecdsa_verifier = VerifyingKey.from_pem(string=public_key_pem, hashfunc=sha256)
     try:
-        if isinstance(public_key, ec.EllipticCurvePublicKey):
-            public_key.verify(signature_bytes, raw_body, ec.ECDSA(hashes.SHA256()))
-        else:
-            raise ValueError("Unsupported public key type")
+        ecdsa_verifier.verify(signature=raw_sig, data=raw_body, sigdecode=sigdecode_der)
         return True
-    except Exception as e:
+    except (BadSignatureError, ValueError) as e:
         print(f"Verification failed: {e}")
         return False
 
