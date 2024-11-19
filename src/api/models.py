@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Any, Union
+from pydantic import BaseModel
+from typing import List, Any
 
 
 class RootModel(BaseModel):
