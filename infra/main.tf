@@ -32,12 +32,6 @@ resource "azurerm_subnet" "default" {
   address_prefixes     = ["10.0.0.0/23"]
 }
 
-resource "azurerm_network_security_group" "inbound" {
-  name                = "inbound-nsg"
-  location            = azurerm_resource_group.default.location
-  resource_group_name = azurerm_resource_group.default.name
-}
-
 resource "azurerm_log_analytics_workspace" "default" {
   name                = "${var.environment_name}-log-analytics"
   location            = azurerm_resource_group.default.location
