@@ -39,7 +39,7 @@ resource "azurerm_network_security_group" "inbound" {
 }
 
 resource "azurerm_log_analytics_workspace" "default" {
-  name                = "atlantis-log-analytics"
+  name                = "${var.environment_name}-log-analytics"
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
 }
