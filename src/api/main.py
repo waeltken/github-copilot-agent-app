@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 
 from api.models import RootModel
 from openai import OpenAI
-from verify_signature import verify_signature
+from api.verify_signature import verify_signature
 
 app = FastAPI()
 
