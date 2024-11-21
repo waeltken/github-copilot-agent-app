@@ -8,6 +8,7 @@ resource "random_string" "random" {
   length  = 4
   special = false
   lower   = true
+  upper   = false
 }
 
 # Deploy resource group
@@ -30,7 +31,7 @@ resource "azurerm_subnet" "default" {
   name                 = "${var.environment_name}-subnet"
   resource_group_name  = azurerm_resource_group.default.name
   virtual_network_name = azurerm_virtual_network.default.name
-  address_prefixes     = ["10.0.0.0/23"]
+  address_prefixes     = ["10.0.0.0/21"]
 }
 
 resource "azurerm_network_security_group" "default" {
@@ -67,10 +68,10 @@ resource "azurerm_network_security_rule" "http" {
   network_security_group_name = azurerm_network_security_group.default.name
 }
 
-resource "azurerm_subnet_network_security_group_association" "default" {
-  subnet_id                 = azurerm_subnet.default.id
-  network_security_group_id = azurerm_network_security_group.default.id
-}
+# resource "azurerm_subnet_network_security_group_association" "default" {
+#   subnet_id                 = azurerm_subnet.default.id
+#   network_security_group_id = azurerm_network_security_group.default.id
+# }
 
 resource "azurerm_log_analytics_workspace" "default" {
   name                = "${var.environment_name}-log-analytics"
@@ -155,14 +156,6 @@ resource "azurerm_container_app" "default" {
   tags = { azd-service-name : "python-api" }
 }
 
-# output "atlantis_url" {
-#   value = "https://${azurerm_container_app.default.ingress[0].custom_domain[0].name}"
-# }
-
-# Add resources to be provisioned below.
-# To learn more, https://developer.hashicorp.com/terraform/tutorials/azure-get-started/azure-change
-# Note that a tag:
-#   azd-service-name: "<service name in azure.yaml>"
-# should be applied to targeted service host resources, such as:
-#  azurerm_linux_web_app, azurerm_windows_web_app for appservice
-#  azurerm_function_app for function
+output "subnet_id" {
+  value = azurerm_subnet.default.id
+}
